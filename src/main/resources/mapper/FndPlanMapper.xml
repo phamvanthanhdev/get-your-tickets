@@ -6,6 +6,7 @@
 
     <resultMap id="fndPlanMap" type="com.getyourtickets.model.FndPlan">
         <result property="id" column="id" />
+        <result property="code" column="code" />
         <result property="nameEn" column="name_en" />
         <result property="salePrice" column="sale_price" />
         <result property="createdAt" column="created_at" />
@@ -16,4 +17,16 @@
         SELECT *
         FROM fnd_plan
     </select>
+
+    <select id="getFndPlanCodeHighest" resultType="java.lang.String">
+        SELECT code
+        FROM fnd_plan
+        ORDER BY code DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insertFndPlan" parameterType="java.util.Map">
+        INSERT INTO fnd_plan (code, name_en, sale_price)
+        VALUES (#{code}, #{nameEn}, #{salePrice})
+    </insert>
 </mapper>

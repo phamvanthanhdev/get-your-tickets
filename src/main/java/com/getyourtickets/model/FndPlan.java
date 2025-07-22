@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 public class FndPlan {
     private int id;
+
+    private String code;
     private String nameEn;
     private BigDecimal salePrice;
     private String createdAt;
@@ -12,8 +14,9 @@ public class FndPlan {
     public FndPlan() {
     }
 
-    public FndPlan(int id, String nameEn, BigDecimal salePrice, String createdAt, String updatedAt) {
+    public FndPlan(int id, String code, String nameEn, BigDecimal salePrice, String createdAt, String updatedAt) {
         this.id = id;
+        this.code = code;
         this.nameEn = nameEn;
         this.salePrice = salePrice;
         this.createdAt = createdAt;
@@ -58,5 +61,13 @@ public class FndPlan {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

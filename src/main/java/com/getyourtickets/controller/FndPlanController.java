@@ -1,6 +1,7 @@
 package com.getyourtickets.controller;
 
 import com.getyourtickets.dto.ApiResponse;
+import com.getyourtickets.dto.FndPlanRequest;
 import com.getyourtickets.dto.FndPlanResponse;
 import com.getyourtickets.mapper.FndPlanMapper;
 import com.getyourtickets.service.CommonService;
@@ -8,10 +9,8 @@ import com.getyourtickets.service.FndPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,17 +25,25 @@ public class FndPlanController {
         try {
             List<FndPlanResponse> responses = fndPlanService.getListFndPlanResponse();
 
-            return new ResponseEntity<>(CommonService.buildResponse(1000, "Success", responses), HttpStatus.OK);
+            return new ResponseEntity<>(ApiResponse.builder()
+                    .code(1000)
+                    .message("success")
+                    .result(responses)
+                    .build(), HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException("Error fetching Fnd Plans: " + e.getMessage());
         }
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createFndPlan() {
-
-
-        return new ResponseEntity<>("Fnd Plan created successfully", HttpStatus.CREATED);
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<ApiResponse> createFndPlan(@RequestBody FndPlanRequest request) {
+        FndPlanResponse response = fndPlanService.insertFndPlan(request);
+        return new ResponseEntity<>(ApiResponse.builder()
+                .code(1000)
+                .message("success")
+                .result(response)
+                .build(), HttpStatus.CREATED);
     }
 
 
