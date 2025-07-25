@@ -11,4 +11,5 @@ public interface FndPlanMapper {
     List<FndPlan> getAllFndPlans();
     String getFndPlanCodeHighest();
     void insertFndPlan(Map<String, Object> params);
+    FndPlan getFndPlanByCode(String code);
 }

@@ -29,4 +29,11 @@
         INSERT INTO fnd_plan (code, name_en, sale_price)
         VALUES (#{code}, #{nameEn}, #{salePrice})
     </insert>
+
+    <select id="getFndPlanByCode" parameterType="java.lang.String" resultMap="fndPlanMap">
+        SELECT *
+        FROM fnd_plan
+        WHERE code = #{code}
+        LIMIT 1
+    </select>
 </mapper>

@@ -5,7 +5,7 @@ import com.getyourtickets.dto.FndPlanResponse;
 import com.getyourtickets.mapper.FndPlanMapper;
 import com.getyourtickets.model.FndPlan;
 import com.getyourtickets.service.FndPlanService;
-import com.getyourtickets.utils.Constants;
+import com.getyourtickets.utils.FndPlanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class FndPlanServiceImp implements FndPlanService {
     public FndPlanResponse insertFndPlan(FndPlanRequest request) {
         Map<String, Object> params = request.toMap();
         String planCodeHighest = fndPlanMapper.getFndPlanCodeHighest();
-        params.put("code", generateFndPlanCode(planCodeHighest));
+        params.put("code", FndPlanUtils.generateFndPlanCode(planCodeHighest));
 
         fndPlanMapper.insertFndPlan(params);
         return FndPlanResponse.builder()
@@ -41,12 +41,14 @@ public class FndPlanServiceImp implements FndPlanService {
                 .build();
     }
 
-    private String generateFndPlanCode(String planCodeHighest) {
-        if (planCodeHighest == null || planCodeHighest.isEmpty()) {
-            return "FNDPL0001";
+    @Override
+    public FndPlanResponse getFndPlanByCode(String code) {
+        FndPlan fndPlan = fndPlanMapper.getFndPlanByCode(code);
+        if (fndPlan == null) {
+            throw new RuntimeException("FndPlan with code " + code + " not found");
         }
-        int nextCode = Integer.parseInt(planCodeHighest.replace(Constants.FND_PLAN_CODE_PREFIX, "")) + 1;
-        return String.format("FNDPL%04d", nextCode);
+        return FndPlanResponse.from(fndPlan);
+
     }
 
 }

@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface FndPlanService {
     List<FndPlan> getAllFndPlans();
-
     List<FndPlanResponse> getListFndPlanResponse();
-
     FndPlanResponse insertFndPlan(FndPlanRequest request);
+    FndPlanResponse getFndPlanByCode(String code);
 }
