@@ -1,4 +1,4 @@
-package com.getyourtickets.dto;
+package com.getyourtickets.dto.fndplan;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.getyourtickets.model.FndPlan;

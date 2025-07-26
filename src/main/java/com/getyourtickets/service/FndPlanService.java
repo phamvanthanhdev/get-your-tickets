@@ -1,7 +1,7 @@
 package com.getyourtickets.service;
 
-import com.getyourtickets.dto.FndPlanRequest;
-import com.getyourtickets.dto.FndPlanResponse;
+import com.getyourtickets.dto.fndplan.FndPlanRequest;
+import com.getyourtickets.dto.fndplan.FndPlanResponse;
 import com.getyourtickets.model.FndPlan;
 
 import java.util.List;

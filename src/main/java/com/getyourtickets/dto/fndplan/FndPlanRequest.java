@@ -1,4 +1,4 @@
-package com.getyourtickets.dto;
+package com.getyourtickets.dto.fndplan;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;

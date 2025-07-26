@@ -1,7 +1,7 @@
 package com.getyourtickets.implement;
 
-import com.getyourtickets.dto.FndPlanRequest;
-import com.getyourtickets.dto.FndPlanResponse;
+import com.getyourtickets.dto.fndplan.FndPlanRequest;
+import com.getyourtickets.dto.fndplan.FndPlanResponse;
 import com.getyourtickets.exception.ErrorEnum;
 import com.getyourtickets.exception.GytException;
 import com.getyourtickets.mapper.FndPlanMapper;

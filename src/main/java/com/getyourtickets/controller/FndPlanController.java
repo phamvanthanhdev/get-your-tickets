@@ -1,8 +1,8 @@
 package com.getyourtickets.controller;
 
 import com.getyourtickets.dto.ApiResponse;
-import com.getyourtickets.dto.FndPlanRequest;
-import com.getyourtickets.dto.FndPlanResponse;
+import com.getyourtickets.dto.fndplan.FndPlanRequest;
+import com.getyourtickets.dto.fndplan.FndPlanResponse;
 import com.getyourtickets.service.FndPlanService;
 import com.getyourtickets.utils.Constants;
 import jakarta.validation.Valid;
