@@ -10,5 +10,5 @@ public interface FndPlanService {
     List<FndPlan> getAllFndPlans();
     List<FndPlanResponse> getListFndPlanResponse();
     FndPlanResponse insertFndPlan(FndPlanRequest request);
-    FndPlanResponse getFndPlanByCode(String code);
+    FndPlanResponse getFndPlanByCode(String code) throws Exception;
 }

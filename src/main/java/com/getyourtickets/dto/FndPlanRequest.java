@@ -14,9 +14,9 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class FndPlanRequest {
-    @Size(min = 3, max = 255, message = "Name must be between 3 and 255 characters")
+    @Size(min = 3, max = 255, message = "INVALID_FND_PLAN_NAME")
     private String nameEn;
-    @Min(value = 1000, message = "Sale price must be at least 1000")
+    @Min(value = 1000, message = "INVALID_FND_PLAN_SALE_PRICE")
     private BigDecimal salePrice;
 
     public Map<String, Object> toMap() {

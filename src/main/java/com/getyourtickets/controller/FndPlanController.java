@@ -47,7 +47,7 @@ public class FndPlanController {
     }
     
     @GetMapping("/get/{code}")
-    public ResponseEntity<ApiResponse> getFndPlanById(@PathVariable String code) {
+    public ResponseEntity<ApiResponse> getFndPlanById(@PathVariable String code) throws Exception {
         FndPlanResponse response = fndPlanService.getFndPlanByCode(code);
 
         return new ResponseEntity<>(ApiResponse.builder()

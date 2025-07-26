@@ -2,6 +2,8 @@ package com.getyourtickets.implement;
 
 import com.getyourtickets.dto.FndPlanRequest;
 import com.getyourtickets.dto.FndPlanResponse;
+import com.getyourtickets.exception.ErrorEnum;
+import com.getyourtickets.exception.GytException;
 import com.getyourtickets.mapper.FndPlanMapper;
 import com.getyourtickets.model.FndPlan;
 import com.getyourtickets.service.FndPlanService;
@@ -42,10 +44,10 @@ public class FndPlanServiceImp implements FndPlanService {
     }
 
     @Override
-    public FndPlanResponse getFndPlanByCode(String code) {
+    public FndPlanResponse getFndPlanByCode(String code) throws Exception {
         FndPlan fndPlan = fndPlanMapper.getFndPlanByCode(code);
         if (fndPlan == null) {
-            throw new RuntimeException("FndPlan with code " + code + " not found");
+            throw new GytException(ErrorEnum.FND_PLAN_NOT_FOUND);
         }
         return FndPlanResponse.from(fndPlan);
 
