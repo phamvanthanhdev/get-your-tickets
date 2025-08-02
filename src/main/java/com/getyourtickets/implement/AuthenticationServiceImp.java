@@ -4,8 +4,10 @@ import com.getyourtickets.dto.jwt.VerifyRequest;
 import com.getyourtickets.dto.userlogin.UserLoginRequest;
 import com.getyourtickets.dto.userlogin.UserLoginResponse;
 import com.getyourtickets.mapper.UserMapper;
+import com.getyourtickets.model.Role;
 import com.getyourtickets.model.User;
 import com.getyourtickets.service.AuthenticationService;
+import com.getyourtickets.service.RoleService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -21,11 +23,14 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
+import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImp implements AuthenticationService {
     private final UserMapper userMapper;
+    private final RoleService roleService;
 
     @Value("${jwt.signer-key}")
     protected String signerKey;
@@ -63,7 +68,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
                     .issuer("com.getyourtickets")
                     .issueTime(new Date())
                     .expirationTime(new Date(Instant.now().plus(expiration, ChronoUnit.SECONDS).toEpochMilli()))
-                    .claim("roles", "ROLE_USER")
+                    .claim("scope", getRoleNamesByUser(user.getId()))
                     .build();
 
             Payload payload = new Payload(claimsSet.toJSONObject());
@@ -84,5 +89,10 @@ public class AuthenticationServiceImp implements AuthenticationService {
         return null;
     }
 
-
+    private String getRoleNamesByUser(int userId) {
+        List<Role> roles = roleService.getRolesByUserId(userId);
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        roles.forEach(role -> stringJoiner.add(role.getName()));
+        return stringJoiner.toString();
+    }
 }

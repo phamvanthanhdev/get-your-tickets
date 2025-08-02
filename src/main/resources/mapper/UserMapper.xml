@@ -25,4 +25,11 @@
         INSERT INTO users (username, password, email, full_name)
         VALUES (#{username}, #{password}, #{email}, #{fullName})
     </insert>
+
+    <select id="getUserById" parameterType="java.lang.Integer" resultMap="userResultMap">
+        SELECT *
+        FROM users
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
 </mapper>

@@ -9,4 +9,5 @@ import java.util.Map;
 public interface UserMapper {
     User getUserByUsername(String username);
     void insertUser(Map<String, Object> map);
+    User getUserById(int id);
 }
