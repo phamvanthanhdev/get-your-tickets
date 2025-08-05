@@ -10,6 +10,8 @@ import com.getyourtickets.model.User;
 import com.getyourtickets.service.RoleService;
 import com.getyourtickets.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
     public UserResponse getUserResponseById(int id) {
         User user = userMapper.getUserById(id);
         if (user == null) {
@@ -68,6 +71,28 @@ public class UserServiceImp implements UserService {
                 .fullName(user.getFullName())
                 .roles(roleNames)
                 .build();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userMapper.getAllUsers();
+        List<UserResponse> userResponses = new ArrayList<>();
+        for (User user : users) {
+            List<Role> roles = roleService.getRolesByUserId(user.getId());
+            Set<String> roleNames = new HashSet<>();
+            for (Role role : roles) {
+                roleNames.add(role.getName());
+            }
+            userResponses.add(UserResponse.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
+                    .roles(roleNames)
+                    .build());
+        }
+        return userResponses;
     }
 
     private String hashPassword(String password) {

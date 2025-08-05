@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,9 +16,11 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     @Value("${jwt.signer-key}")
     protected String signerKey;
@@ -25,11 +28,16 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/signup",
             "/api/auth/token",
-            "/api/auth/verify"
+            "/api/auth/verify",
+            "/api/booking/create",
     };
 
     private static final String[] ADMIN_ENDPOINTS = {
-            "/api/user/{id}",
+//            "/api/user/getAll",
+    };
+
+    private static final String[] USER_ENDPOINTS = {
+//            "/api/user/{id}",
     };
 
     @Bean
@@ -38,6 +46,7 @@ public class SecurityConfig {
                 auth -> auth
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, USER_ENDPOINTS).hasRole("USER")
                         .anyRequest().authenticated()
         );
 
@@ -70,5 +79,10 @@ public class SecurityConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public static ConcurrentHashMap<String, Long> outOrderNos() {
+        return new ConcurrentHashMap<>();
     }
 }

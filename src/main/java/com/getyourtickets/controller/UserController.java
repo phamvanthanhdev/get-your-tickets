@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 @Slf4j
@@ -28,19 +30,20 @@ public class UserController {
         System.out.println("Current User: " + messageService.getCurrentUser());
         System.out.println("Current User Role: " + messageService.getCurrentUserRole().toString());
 
-        try {
             UserResponse response = userService.getUserResponseById(id);
             return ResponseEntity.ok().body(ApiResponse.builder()
                     .code(200)
                     .result(response)
                     .build());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.status(500).body(
-                    ApiResponse.builder()
-                    .code(500)
-                    .message("Something went wrong")
-                    .build());
-        }
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<ApiResponse> getAllUsers() {
+        List<UserResponse> users = userService.getAllUsers();
+
+        return ResponseEntity.ok().body(ApiResponse.builder()
+                .code(200)
+                .result(users)
+                .build());
     }
 }

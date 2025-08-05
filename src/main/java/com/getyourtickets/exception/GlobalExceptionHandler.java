@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleException(Exception ex) {
+
         ApiResponse response = ApiResponse.builder()
                 .code(ErrorEnum.UNKNOWN_ERROR.getCode())
                 .message(ErrorEnum.UNKNOWN_ERROR.getMessage())
@@ -20,11 +21,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException ex) {
-        ApiResponse response = ApiResponse.builder()
+        throw new RuntimeException(ex);
+        /*ApiResponse response = ApiResponse.builder()
                 .code(500)
                 .message("Internal Server Error: " + ex.getMessage())
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+                .build();*/
+//        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
