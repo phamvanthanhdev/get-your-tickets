@@ -27,20 +27,11 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer id) {
-        try {
-            UserResponse response = userService.getUserResponseById(id);
-            return ResponseEntity.ok().body(ApiResponse.builder()
-                    .code(200)
-                    .result(response)
-                    .build());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.status(500).body(
-                    ApiResponse.builder()
-                    .code(500)
-                    .message("Something went wrong")
-                    .build());
-        }
+        UserResponse response = userService.getUserResponseById(id);
+        return ResponseEntity.ok().body(ApiResponse.builder()
+                .code(200)
+                .result(response)
+                .build());
     }
 
     @GetMapping("/getAll")
