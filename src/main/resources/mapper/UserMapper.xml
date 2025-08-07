@@ -32,4 +32,9 @@
         WHERE id = #{id}
         LIMIT 1
     </select>
+
+    <select id="getAllUsers" resultMap="userResultMap">
+        SELECT *
+        FROM users
+    </select>
 </mapper>
