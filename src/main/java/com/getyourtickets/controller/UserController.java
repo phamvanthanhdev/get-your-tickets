@@ -25,9 +25,6 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer id) {
-        System.out.println("Current User: " + messageService.getCurrentUser());
-        System.out.println("Current User Role: " + messageService.getCurrentUserRole().toString());
-
         try {
             UserResponse response = userService.getUserResponseById(id);
             return ResponseEntity.ok().body(ApiResponse.builder()
