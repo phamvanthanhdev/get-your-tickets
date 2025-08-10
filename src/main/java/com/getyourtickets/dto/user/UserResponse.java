@@ -1,5 +1,6 @@
 package com.getyourtickets.dto.user;
 
+import com.getyourtickets.dto.permission.RolePermission;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,6 @@ public class UserResponse implements Serializable {
     private String username;
     private String email;
     private String fullName;
-    private Set<String> roles;
+//    private Set<String> roles;
+    private Set<RolePermission> rolePermissions;
 }

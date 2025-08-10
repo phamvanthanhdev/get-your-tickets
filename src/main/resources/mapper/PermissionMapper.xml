@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.getyourtickets.mapper.PermissionMapper">
+    <resultMap id="permissionMap" type="com.getyourtickets.model.Permission">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="description" column="description" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
+    <select id="getAllPermissions" resultMap="permissionMap">
+        SELECT * FROM permission
+    </select>
+
+    <select id="getPermissionById" parameterType="java.lang.Long" resultMap="permissionMap">
+        SELECT * FROM permission WHERE id = #{id} LIMIT 1
+    </select>
+
+    <insert id="createPermission" parameterType="java.util.Map"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO permission (name, description)
+        VALUES (#{name}, #{description})
+    </insert>
+
+    <delete id="deletePermission" parameterType="java.lang.Long">
+        DELETE FROM permission WHERE id = #{id}
+    </delete>
+
+    <select id="getPermissionsByRoleId" parameterType="java.lang.Long" resultMap="permissionMap">
+        SELECT p.*
+        FROM roles r
+        LEFT JOIN role_permissions rp
+        ON r.id = rp.role_id
+        LEFT JOIN permission p
+        ON rp.permission_id = p.id
+        WHERE r.id = #{roleId}
+    </select>
+</mapper>

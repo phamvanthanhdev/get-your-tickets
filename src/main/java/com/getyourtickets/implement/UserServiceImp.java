@@ -1,12 +1,15 @@
 package com.getyourtickets.implement;
 
+import com.getyourtickets.dto.permission.RolePermission;
 import com.getyourtickets.dto.user.UserResponse;
 import com.getyourtickets.dto.usersignup.UserSignupRequest;
 import com.getyourtickets.exception.ErrorEnum;
 import com.getyourtickets.exception.GytException;
 import com.getyourtickets.mapper.UserMapper;
+import com.getyourtickets.model.Permission;
 import com.getyourtickets.model.Role;
 import com.getyourtickets.model.User;
+import com.getyourtickets.service.PermissionService;
 import com.getyourtickets.service.RoleService;
 import com.getyourtickets.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ public class UserServiceImp implements UserService {
     private UserMapper userMapper;
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private PermissionService permissionService;
 
 
     @Override
@@ -59,9 +65,17 @@ public class UserServiceImp implements UserService {
             throw new GytException(ErrorEnum.USER_NOT_FOUND);
         }
         List<Role> roles = roleService.getRolesByUserId(id);
-        Set<String> roleNames = new HashSet<>();
+        Set<RolePermission> rolePermissions = new HashSet<>();
         for (Role role : roles) {
-            roleNames.add(role.getName());
+            RolePermission rolePermission = new RolePermission();
+            rolePermission.setRoleName(role.getName());
+            List<Permission> permissions = permissionService.getPermissionsByRoleId(Long.valueOf(role.getId()));
+            Set<String> permissionNames = new HashSet<>();
+            permissions.forEach(permission -> {
+                permissionNames.add(permission.getName());
+            });
+            rolePermission.setPermissionNames(permissionNames.stream().toList());
+            rolePermissions.add(rolePermission);
         }
 
         return UserResponse.builder()
@@ -69,7 +83,7 @@ public class UserServiceImp implements UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
-                .roles(roleNames)
+                .rolePermissions(rolePermissions)
                 .build();
     }
 
@@ -88,16 +102,24 @@ public class UserServiceImp implements UserService {
         return users.stream()
                 .map(user -> {
                     List<Role> roles = roleService.getRolesByUserId(user.getId());
-                    Set<String> roleNames = new HashSet<>();
+                    Set<RolePermission> rolePermissions = new HashSet<>();
                     for (Role role : roles) {
-                        roleNames.add(role.getName());
+                        RolePermission rolePermission = new RolePermission();
+                        rolePermission.setRoleName(role.getName());
+                        List<Permission> permissions = permissionService.getPermissionsByRoleId(Long.valueOf(role.getId()));
+                        Set<String> permissionNames = new HashSet<>();
+                        permissions.forEach(permission -> {
+                            permissionNames.add(permission.getName());
+                        });
+                        rolePermission.setPermissionNames(permissionNames.stream().toList());
+                        rolePermissions.add(rolePermission);
                     }
                     return UserResponse.builder()
                             .id(user.getId())
                             .username(user.getUsername())
                             .email(user.getEmail())
                             .fullName(user.getFullName())
-                            .roles(roleNames)
+                            .rolePermissions(rolePermissions)
                             .build();
                 })
                 .toList();

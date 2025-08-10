@@ -4,9 +4,11 @@ import com.getyourtickets.dto.jwt.VerifyRequest;
 import com.getyourtickets.dto.userlogin.UserLoginRequest;
 import com.getyourtickets.dto.userlogin.UserLoginResponse;
 import com.getyourtickets.mapper.UserMapper;
+import com.getyourtickets.model.Permission;
 import com.getyourtickets.model.Role;
 import com.getyourtickets.model.User;
 import com.getyourtickets.service.AuthenticationService;
+import com.getyourtickets.service.PermissionService;
 import com.getyourtickets.service.RoleService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -31,6 +33,7 @@ import java.util.StringJoiner;
 public class AuthenticationServiceImp implements AuthenticationService {
     private final UserMapper userMapper;
     private final RoleService roleService;
+    private final PermissionService permissionService;
 
     @Value("${jwt.signer-key}")
     protected String signerKey;
@@ -92,7 +95,14 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private String getRoleNamesByUser(int userId) {
         List<Role> roles = roleService.getRolesByUserId(userId);
         StringJoiner stringJoiner = new StringJoiner(" ");
-        roles.forEach(role -> stringJoiner.add(role.getName()));
+
+        for (Role role : roles) {
+            stringJoiner.add("ROLE_" + role.getName());
+            List<Permission> permissions = permissionService.getPermissionsByRoleId(Long.valueOf(role.getId()));
+            for (Permission permission : permissions) {
+                stringJoiner.add(permission.getName());
+            }
+        }
         return stringJoiner.toString();
     }
 }
