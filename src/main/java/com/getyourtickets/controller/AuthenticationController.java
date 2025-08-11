@@ -10,6 +10,7 @@ import com.getyourtickets.dto.usersignup.UserSignupResponse;
 import com.getyourtickets.service.AuthenticationService;
 import com.getyourtickets.service.UserService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class AuthenticationController {
     private UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signup(@RequestBody UserSignupRequest request) {
+    public ResponseEntity<ApiResponse> signup(@RequestBody @Valid UserSignupRequest request) {
         userService.insertUser(request);
 
         UserSignupResponse response = UserSignupResponse.builder()

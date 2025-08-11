@@ -4,6 +4,7 @@ import com.getyourtickets.dto.ApiResponse;
 import com.getyourtickets.dto.permission.PermissionRequest;
 import com.getyourtickets.dto.permission.PermissionResponse;
 import com.getyourtickets.service.PermissionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class PermissionController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createPermission(@RequestBody PermissionRequest permission) {
+    public ResponseEntity<ApiResponse> createPermission(@RequestBody @Valid PermissionRequest permission) {
         PermissionResponse response = permissionService.createPermission(permission);
         return new ResponseEntity<>(
                 ApiResponse.builder()

@@ -12,6 +12,7 @@ import com.getyourtickets.model.User;
 import com.getyourtickets.service.PermissionService;
 import com.getyourtickets.service.RoleService;
 import com.getyourtickets.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;

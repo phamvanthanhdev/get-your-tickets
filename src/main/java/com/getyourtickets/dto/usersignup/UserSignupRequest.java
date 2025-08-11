@@ -1,6 +1,7 @@
 package com.getyourtickets.dto.usersignup;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.getyourtickets.validator.EmailValidator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class UserSignupRequest {
     private String username;
     private String password;
+    @EmailValidator(message = "INVALID_EMAIL")
     private String email;
     @JsonProperty("full_name")
     private String fullName;

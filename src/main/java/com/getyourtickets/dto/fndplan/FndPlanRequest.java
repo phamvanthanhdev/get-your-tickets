@@ -1,5 +1,6 @@
 package com.getyourtickets.dto.fndplan;
 
+import com.getyourtickets.validator.PlanNameSizeValidator;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -14,7 +15,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class FndPlanRequest {
-    @Size(min = 3, max = 255, message = "INVALID_FND_PLAN_NAME")
+//    @Size(min = 3, max = 255, message = "INVALID_FND_PLAN_NAME")
+    @PlanNameSizeValidator(min = 3, max = 255, message = "INVALID_FND_PLAN_NAME")
     private String nameEn;
     @Min(value = 1000, message = "INVALID_FND_PLAN_SALE_PRICE")
     private BigDecimal salePrice;

@@ -18,7 +18,9 @@ public enum ErrorEnum {
     USER_NOT_FOUND(404, "User not found", HttpStatus.BAD_REQUEST),
     USER_ALREADY_EXISTS(409, "User already exists", HttpStatus.BAD_REQUEST),
     AUTHENTICATION_FAILED(401, "Authentication failed", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(403, "Unauthorized access", HttpStatus.FORBIDDEN)
+    UNAUTHORIZED(403, "Unauthorized access", HttpStatus.FORBIDDEN),
+    INVALID_EMAIL(400, "Invalid email format", HttpStatus.BAD_REQUEST),
+    INVALID_PERMISSION_NAME(400, "The permission names must be not contain spaces.", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;
