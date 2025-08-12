@@ -16,7 +16,7 @@ import java.util.Map;
 @Builder
 public class FndPlanRequest {
 //    @Size(min = 3, max = 255, message = "INVALID_FND_PLAN_NAME")
-    @PlanNameSizeValidator(min = 3, max = 255, message = "INVALID_FND_PLAN_NAME")
+    @PlanNameSizeValidator(min = 10, max = 255, message = "INVALID_FND_PLAN_NAME")
     private String nameEn;
     @Min(value = 1000, message = "INVALID_FND_PLAN_SALE_PRICE")
     private BigDecimal salePrice;

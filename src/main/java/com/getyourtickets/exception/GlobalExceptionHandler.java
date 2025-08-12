@@ -1,6 +1,8 @@
 package com.getyourtickets.exception;
 
 import com.getyourtickets.dto.ApiResponse;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,9 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.Map;
+import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j
@@ -37,16 +42,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse> handleValidationException(MethodArgumentNotValidException ex) {
         log.error("[ValidationException] ", ex);
+
+        Map attributes = null;
+
         ErrorEnum errorEnum;
         try {
+            ConstraintViolation constraintValidator = ex.getBindingResult()
+                    .getAllErrors().get(0).unwrap(ConstraintViolation.class);
+            attributes = constraintValidator.getConstraintDescriptor().getAttributes();
+
             errorEnum = ErrorEnum.valueOf(ex.getFieldError().getDefaultMessage());
         } catch (IllegalArgumentException e) {
             errorEnum = ErrorEnum.UNKNOWN_ERROR;
         }
 
+        String message = errorEnum.getMessage();
+        if (Objects.nonNull(attributes)) {
+            if (message.contains("{min}")) {
+                message = message.replace("{min}", String.valueOf(attributes.get("min")));
+            }
+            if (message.contains("{max}")) {
+                message = message.replace("{max}", String.valueOf(attributes.get("max")));
+            }
+        }
+
         ApiResponse response = ApiResponse.builder()
                 .code(errorEnum.getCode())
-                .message(errorEnum.getMessage())
+                .message(message)
                 .build();
         return new ResponseEntity<>(response, errorEnum.getHttpStatusCode());
     }
