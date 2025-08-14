@@ -1,8 +1,12 @@
 package com.getyourtickets.implement;
 
 import com.getyourtickets.dto.jwt.VerifyRequest;
+import com.getyourtickets.dto.logout.LogoutRequest;
 import com.getyourtickets.dto.userlogin.UserLoginRequest;
 import com.getyourtickets.dto.userlogin.UserLoginResponse;
+import com.getyourtickets.exception.ErrorEnum;
+import com.getyourtickets.exception.GytException;
+import com.getyourtickets.mapper.LogoutMapper;
 import com.getyourtickets.mapper.UserMapper;
 import com.getyourtickets.model.Permission;
 import com.getyourtickets.model.Role;
@@ -24,9 +28,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private final UserMapper userMapper;
     private final RoleService roleService;
     private final PermissionService permissionService;
+    private final LogoutMapper logoutMapper;
 
     @Value("${jwt.signer-key}")
     protected String signerKey;
@@ -42,19 +45,20 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
 
     @Override
-    public boolean verifyToken(VerifyRequest request) throws JOSEException, ParseException {
-        JWSVerifier verifier =new MACVerifier(signerKey.getBytes());
-        SignedJWT signedJWT = SignedJWT.parse(request.getToken());
-        JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-
-        if (signedJWT.verify(verifier) && claimsSet.getExpirationTime().after(new Date())) {
-            String username = claimsSet.getSubject();
-            User user = userMapper.getUserByUsername(username);
-            if (user != null) {
-                return true;
+    public boolean verifyToken(String token) throws JOSEException, ParseException {
+        try {
+            if (this.isValidToken(token)) {
+                SignedJWT signedJWT = SignedJWT.parse(token);
+                JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+                String username = claimsSet.getSubject();
+                User user = userMapper.getUserByUsername(username);
+                if (user != null) {
+                    return true;
+                }
             }
+        } catch (Exception e){
+            return false;
         }
-
         return false;
     }
 
@@ -70,6 +74,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
                     .subject(user.getUsername())
                     .issuer("com.getyourtickets")
                     .issueTime(new Date())
+                    .jwtID(UUID.randomUUID().toString())
                     .expirationTime(new Date(Instant.now().plus(expiration, ChronoUnit.SECONDS).toEpochMilli()))
                     .claim("scope", getRoleNamesByUser(user.getId()))
                     .build();
@@ -104,5 +109,38 @@ public class AuthenticationServiceImp implements AuthenticationService {
             }
         }
         return stringJoiner.toString();
+    }
+
+
+    @Override
+    public void logout(LogoutRequest request) throws JOSEException, ParseException {
+        String token = request.getToken();
+        if (isValidToken(token)) {
+            SignedJWT signedJWT = SignedJWT.parse(request.getToken());
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("jwtId", claimsSet.getJWTID());
+            map.put("token", token);
+            Date expirationDate = new Date(claimsSet.getExpirationTime().getTime());
+            map.put("expiredTime", expirationDate);
+            logoutMapper.insertLogout(map);
+        }
+    }
+
+    private boolean isValidToken(String token) throws JOSEException, ParseException {
+        JWSVerifier verifier = new MACVerifier(signerKey.getBytes());
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+        if (signedJWT.verify(verifier)
+                && claimsSet.getExpirationTime().after(new Date())) {
+            if (logoutMapper.getLogoutByJwtId(claimsSet.getJWTID()) != null) {
+                return false;
+            }
+            return true;
+        } else {
+            throw new GytException(ErrorEnum.AUTHENTICATION_FAILED);
+        }
     }
 }

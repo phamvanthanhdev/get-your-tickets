@@ -3,6 +3,7 @@ package com.getyourtickets.controller;
 import com.getyourtickets.dto.ApiResponse;
 import com.getyourtickets.dto.jwt.VerifyRequest;
 import com.getyourtickets.dto.jwt.VerifyResponse;
+import com.getyourtickets.dto.logout.LogoutRequest;
 import com.getyourtickets.dto.userlogin.UserLoginRequest;
 import com.getyourtickets.dto.userlogin.UserLoginResponse;
 import com.getyourtickets.dto.usersignup.UserSignupRequest;
@@ -67,10 +68,19 @@ public class AuthenticationController {
 
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse> verifyToken(@RequestBody VerifyRequest request) throws JOSEException, ParseException {
-        boolean isVerified = authenticationService.verifyToken(request);
+        boolean isVerified = authenticationService.verifyToken(request.getToken());
         VerifyResponse response = VerifyResponse.builder()
                 .valid(isVerified)
                 .build();
         return ResponseEntity.ok().body(ApiResponse.builder().code(200).result(response).build());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(@RequestBody LogoutRequest request) throws JOSEException, ParseException {
+        authenticationService.logout(request);
+        return ResponseEntity.ok().body(ApiResponse.builder()
+                .code(200)
+                .message("Success")
+                .build());
     }
 }
