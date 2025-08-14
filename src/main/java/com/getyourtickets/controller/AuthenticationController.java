@@ -4,6 +4,8 @@ import com.getyourtickets.dto.ApiResponse;
 import com.getyourtickets.dto.jwt.VerifyRequest;
 import com.getyourtickets.dto.jwt.VerifyResponse;
 import com.getyourtickets.dto.logout.LogoutRequest;
+import com.getyourtickets.dto.refresh.RefreshRequest;
+import com.getyourtickets.dto.refresh.RefreshResponse;
 import com.getyourtickets.dto.userlogin.UserLoginRequest;
 import com.getyourtickets.dto.userlogin.UserLoginResponse;
 import com.getyourtickets.dto.usersignup.UserSignupRequest;
@@ -81,6 +83,16 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(ApiResponse.builder()
                 .code(200)
                 .message("Success")
+                .build());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse> refresh(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+        RefreshResponse response = authenticationService.refreshToken(request);
+        return ResponseEntity.ok().body(ApiResponse.builder()
+                .code(200)
+                .message("Success")
+                .result(response)
                 .build());
     }
 }

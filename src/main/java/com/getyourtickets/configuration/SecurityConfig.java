@@ -30,6 +30,7 @@ public class SecurityConfig {
             "/api/auth/token",
             "/api/auth/verify",
             "/api/auth/logout",
+            "/api/auth/refresh",
     };
 
     private static final String[] ADMIN_ENDPOINTS = {

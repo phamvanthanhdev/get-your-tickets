@@ -2,6 +2,8 @@ package com.getyourtickets.implement;
 
 import com.getyourtickets.dto.jwt.VerifyRequest;
 import com.getyourtickets.dto.logout.LogoutRequest;
+import com.getyourtickets.dto.refresh.RefreshRequest;
+import com.getyourtickets.dto.refresh.RefreshResponse;
 import com.getyourtickets.dto.userlogin.UserLoginRequest;
 import com.getyourtickets.dto.userlogin.UserLoginResponse;
 import com.getyourtickets.exception.ErrorEnum;
@@ -68,33 +70,37 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
-            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .subject(user.getUsername())
-                    .issuer("com.getyourtickets")
-                    .issueTime(new Date())
-                    .jwtID(UUID.randomUUID().toString())
-                    .expirationTime(new Date(Instant.now().plus(expiration, ChronoUnit.SECONDS).toEpochMilli()))
-                    .claim("scope", getRoleNamesByUser(user.getId()))
-                    .build();
-
-            Payload payload = new Payload(claimsSet.toJSONObject());
-
-            JWSObject jwsObject = new JWSObject(header, payload);
-
-            MACSigner signer = null;
-            try {
-                signer = new MACSigner(signerKey.getBytes());
-                jwsObject.sign(signer);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            String token = jwsObject.serialize();
+            String token = generateToken(user);
             return UserLoginResponse.builder().token(token).build();
         }
 
         return null;
+    }
+
+    private String generateToken(User user) {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUsername())
+                .issuer("com.getyourtickets")
+                .issueTime(new Date())
+                .jwtID(UUID.randomUUID().toString())
+                .expirationTime(new Date(Instant.now().plus(expiration, ChronoUnit.SECONDS).toEpochMilli()))
+                .claim("scope", getRoleNamesByUser(user.getId()))
+                .build();
+
+        Payload payload = new Payload(claimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(header, payload);
+
+        MACSigner signer = null;
+        try {
+            signer = new MACSigner(signerKey.getBytes());
+            jwsObject.sign(signer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return jwsObject.serialize();
     }
 
     private String getRoleNamesByUser(int userId) {
@@ -139,6 +145,32 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 return false;
             }
             return true;
+        } else {
+            throw new GytException(ErrorEnum.AUTHENTICATION_FAILED);
+        }
+    }
+
+
+    @Override
+    public RefreshResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
+        String token = request.getToken();
+        if (this.isValidToken(token)) {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("jwtId", claimsSet.getJWTID());
+            map.put("token", token);
+            Date expirationDate = new Date(claimsSet.getExpirationTime().getTime());
+            map.put("expiredTime", expirationDate);
+            logoutMapper.insertLogout(map);
+
+            String username = claimsSet.getSubject();
+            User user = userMapper.getUserByUsername(username);
+
+            String newToken = this.generateToken(user);
+
+            return RefreshResponse.builder().token(newToken).build();
         } else {
             throw new GytException(ErrorEnum.AUTHENTICATION_FAILED);
         }
