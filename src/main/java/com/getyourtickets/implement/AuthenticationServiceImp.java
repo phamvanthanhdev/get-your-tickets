@@ -125,12 +125,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
             SignedJWT signedJWT = SignedJWT.parse(request.getToken());
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
-            Map<String, Object> map = new HashMap<>();
-            map.put("jwtId", claimsSet.getJWTID());
-            map.put("token", token);
-            Date expirationDate = new Date(claimsSet.getExpirationTime().getTime());
-            map.put("expiredTime", expirationDate);
-            logoutMapper.insertLogout(map);
+            logoutMapper.insertLogout(buildMapInsertLogout(claimsSet, token));
         }
     }
 
@@ -158,12 +153,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
-            Map<String, Object> map = new HashMap<>();
-            map.put("jwtId", claimsSet.getJWTID());
-            map.put("token", token);
-            Date expirationDate = new Date(claimsSet.getExpirationTime().getTime());
-            map.put("expiredTime", expirationDate);
-            logoutMapper.insertLogout(map);
+            logoutMapper.insertLogout(buildMapInsertLogout(claimsSet, token));
 
             String username = claimsSet.getSubject();
             User user = userMapper.getUserByUsername(username);
@@ -174,5 +164,14 @@ public class AuthenticationServiceImp implements AuthenticationService {
         } else {
             throw new GytException(ErrorEnum.AUTHENTICATION_FAILED);
         }
+    }
+
+    private Map<String, Object> buildMapInsertLogout(JWTClaimsSet claimsSet, String token) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("jwtId", claimsSet.getJWTID());
+        map.put("token", token);
+        Date expirationDate = new Date(claimsSet.getExpirationTime().getTime());
+        map.put("expiredTime", expirationDate);
+        return map;
     }
 }
