@@ -44,12 +44,13 @@ public class AuthenticationServiceImp implements AuthenticationService {
     protected String signerKey;
     @Value("${jwt.expiration}")
     protected long expiration;
-
+    @Value("${jwt.refresh-expiration}")
+    protected long refreshExpiration;
 
     @Override
     public boolean verifyToken(String token) throws JOSEException, ParseException {
         try {
-            if (this.isValidToken(token)) {
+            if (this.isValidToken(token, false)) {
                 SignedJWT signedJWT = SignedJWT.parse(token);
                 JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
                 String username = claimsSet.getSubject();
@@ -121,7 +122,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     @Override
     public void logout(LogoutRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
-        if (isValidToken(token)) {
+        if (isValidToken(token, true)) {
             SignedJWT signedJWT = SignedJWT.parse(request.getToken());
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
@@ -129,13 +130,17 @@ public class AuthenticationServiceImp implements AuthenticationService {
         }
     }
 
-    private boolean isValidToken(String token) throws JOSEException, ParseException {
+    private boolean isValidToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(signerKey.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
         JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
+        Date expirationTime = isRefresh
+                ? new Date(claimsSet.getIssueTime().toInstant().plus(refreshExpiration, ChronoUnit.SECONDS).toEpochMilli())
+                : claimsSet.getExpirationTime();
+
         if (signedJWT.verify(verifier)
-                && claimsSet.getExpirationTime().after(new Date())) {
+                && expirationTime.after(new Date())) {
             if (logoutMapper.getLogoutByJwtId(claimsSet.getJWTID()) != null) {
                 return false;
             }
@@ -149,7 +154,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     @Override
     public RefreshResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
         String token = request.getToken();
-        if (this.isValidToken(token)) {
+        if (this.isValidToken(token, true)) {
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
