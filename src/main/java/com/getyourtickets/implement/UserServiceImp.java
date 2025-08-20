@@ -3,6 +3,7 @@ package com.getyourtickets.implement;
 import com.getyourtickets.dto.permission.RolePermission;
 import com.getyourtickets.dto.user.UserResponse;
 import com.getyourtickets.dto.usersignup.UserSignupRequest;
+import com.getyourtickets.dto.usersignup.UserSignupResponse;
 import com.getyourtickets.exception.ErrorEnum;
 import com.getyourtickets.exception.GytException;
 import com.getyourtickets.mapper.UserMapper;
@@ -13,6 +14,7 @@ import com.getyourtickets.service.PermissionService;
 import com.getyourtickets.service.RoleService;
 import com.getyourtickets.service.UserService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
+@Slf4j
 public class UserServiceImp implements UserService {
     @Autowired
     private UserMapper userMapper;
@@ -42,7 +45,8 @@ public class UserServiceImp implements UserService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void insertUser(UserSignupRequest request) {
+    public UserSignupResponse insertUser(UserSignupRequest request) {
+        log.info("This is UserService");
         User existingUser = userMapper.getUserByUsername(request.getUsername());
         if (existingUser != null) {
             throw new GytException(ErrorEnum.USER_ALREADY_EXISTS);
@@ -56,6 +60,10 @@ public class UserServiceImp implements UserService {
 
         userMapper.insertUser(insertMap);
 
+        return UserSignupResponse.builder()
+                .username(request.getUsername())
+                .message("User registered successfully")
+                .build();
     }
 
     @Override

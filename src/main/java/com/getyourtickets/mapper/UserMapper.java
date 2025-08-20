@@ -9,7 +9,7 @@ import java.util.Map;
 @Mapper
 public interface UserMapper {
     User getUserByUsername(String username);
-    void insertUser(Map<String, Object> map);
+    int insertUser(Map<String, Object> map);
     User getUserById(int id);
     List<User> getAllUsers();
 }

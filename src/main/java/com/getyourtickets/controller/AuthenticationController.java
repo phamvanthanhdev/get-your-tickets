@@ -14,6 +14,7 @@ import com.getyourtickets.service.AuthenticationService;
 import com.getyourtickets.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.text.ParseException;
 
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
@@ -34,12 +36,8 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signup(@RequestBody @Valid UserSignupRequest request) {
-        userService.insertUser(request);
-
-        UserSignupResponse response = UserSignupResponse.builder()
-                .username(request.getUsername())
-                .message("User registered successfully")
-                .build();
+        log.info("This is AuthenticationController");
+        UserSignupResponse response = userService.insertUser(request);
         return new ResponseEntity<>(
                 ApiResponse.builder()
                         .code(201)
